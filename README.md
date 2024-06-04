@@ -26,7 +26,7 @@ GitHub Actions - GitHub Actions is a continuous integration tool that operates b
 To add the user data, click on Advance details and scroll to the bottom to add your user data.
  
 Copy the code below into the user data section to install docker and Codedeploy agent during the instance launch process
-```
+```sh
 #!/bin/bash
 # Update the package list and install necessary packages
 sudo yum update -y
@@ -57,10 +57,10 @@ sudo systemctl enable codedeploy-agent
 docker --version
 codedeploy-agent --version
 
-```sh
+```
 
 3.	Launch the Instance: Review and launch the instance. Ensure you download the key pair (.pem file) for SSH access.
-Step 2: Create IAM Role for CodeDeploy
+## Step 2: Create IAM Role for CodeDeploy
 1.	Open the IAM Console:
 •	Navigate to the AWS Management Console.
 •	Go to the IAM (Identity and Access Management) service.
@@ -80,7 +80,7 @@ For our own we will not be needing this since we not using s3
 •	Enter a role name (e.g., EC2CodeDeployRole).
 •	Add a description if desired.
 •	Click "Create role."
-Step 3: Attach IAM Role to EC2 Instance
+## Step 3: Attach IAM Role to EC2 Instance
 1.	Open the EC2 Console:
 •	Navigate to the AWS Management Console.
 •	Go to the EC2 service.
@@ -94,7 +94,7 @@ Step 3: Attach IAM Role to EC2 Instance
 •	Click "Update IAM role."
 4.	After attaching your role, Reboot your instance to take effect.
 
-Step 4: Configure AWS CodeDeploy
+## Step 4: Configure AWS CodeDeploy
 1.	Create CodeDeploy Application:
 •	Open the AWS CodeDeploy console.
 •	Choose "Create application."
@@ -137,24 +137,27 @@ Create a directory named “scripts” in your root directory
 
 2.	Add Deployment Scripts:
 •	scripts/before_install.sh:
+```sh
 #!/bin/bash
 docker pull abudev22/todoapp:latest
 docker stop my-website || true
 docker rm my-website || true
-
-make to replace with your docker username and image name
+```
+make sure to replace with your docker username and image name
 
 
 
 •	deploy/scripts/start_server.sh:
+```sh
 #!/bin/bash
 docker run -d --name my-website -p 8000:8000 abudev22/todoapp:latest
 
-
+```
 
 
 3.	create an AppSpec File in your root directory:
 •	appspec.yml:
+```sh
 version: 0.0
 os: linux
 files:
@@ -170,20 +173,20 @@ hooks:
       timeout: 300
       runas: ec2-user
 
+```
 
 
 
 
 
-
-Step 6: Set Up GitHub Actions Workflow
+## Step 6: Set Up GitHub Actions Workflow
 1.	Create Workflow File:
 •	In your GitHub repository, create the following directory structure:
 .github/ workflows/ main.yml 
 2.	Add Workflow Configuration:
 Make sure to change the application name and application group to be the same as the one you created in  step 4.
 main.yml
-
+```sh
 name: Deploy website to EC2 using AWS CodeDeploy
 
 on:
@@ -221,9 +224,9 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: us-east-2
+```
 
-
-Step 7: Set Up GitHub Secrets
+## Step 7: Set Up GitHub Secrets
 1.	Add GitHub Secrets:
 •	In your GitHub repository, go to "Settings" > "Secrets" > "Actions."
 •	Add the following secrets:
@@ -231,7 +234,7 @@ Step 7: Set Up GitHub Secrets
 •	DOCKER_HUB_PASSWORD: Your Docker Hub password.
 •	AWS_ACCESS_KEY_ID: Your AWS access key ID.
 •	AWS_SECRET_ACCESS_KEY: Your AWS secret access key.
-Step 8: Push Changes to GitHub
+## Step 8: Push Changes to GitHub
 1.	Push Changes:
 •	Commit and push your changes to the main branch in your GitHub repository.
 2.	Monitor Deployment:
